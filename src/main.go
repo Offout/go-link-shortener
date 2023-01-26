@@ -4,20 +4,9 @@ import (
 	"fmt"
 	"github.com/Offout/go-link-shortener/src/auth"
 	"github.com/Offout/go-link-shortener/src/squeeze"
+	"github.com/rs/cors"
 	"net/http"
 )
-
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		referer := r.Header.Get("Referer")
-		if "" != referer {
-			w.Header().Add("Access-Control-Allow-Origin", referer)
-			w.Header().Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-			w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		}
-		next.ServeHTTP(w, r)
-	})
-}
 
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -31,17 +20,18 @@ func authMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
+
 	fmt.Println("Starting")
 	authRegisterHandler := http.HandlerFunc(auth.Register)
-	http.Handle("/register", corsMiddleware(authRegisterHandler))
+	http.Handle("/register", cors.Default().Handler(authRegisterHandler))
 	authLoginHandler := http.HandlerFunc(auth.Login)
-	http.Handle("/login", corsMiddleware(authLoginHandler))
+	http.Handle("/login", cors.Default().Handler(authLoginHandler))
 	squeezeSqueezeHandler := http.HandlerFunc(squeeze.Squeeze)
-	http.Handle("/squeeze", corsMiddleware(authMiddleware(squeezeSqueezeHandler)))
+	http.Handle("/squeeze", cors.Default().Handler(authMiddleware(squeezeSqueezeHandler)))
 	squeezeRedirectHandler := http.HandlerFunc(squeeze.Redirect)
-	http.Handle("/s/", corsMiddleware(squeezeRedirectHandler))
+	http.Handle("/s/", cors.Default().Handler(squeezeRedirectHandler))
 	squeezeStatisticsHandler := http.HandlerFunc(squeeze.Statistics)
-	http.Handle("/statistics", corsMiddleware(authMiddleware(squeezeStatisticsHandler)))
+	http.Handle("/statistics", cors.Default().Handler(authMiddleware(squeezeStatisticsHandler)))
 	err := http.ListenAndServe(":9980", nil)
 	if err != nil {
 		return
