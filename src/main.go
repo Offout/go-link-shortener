@@ -20,18 +20,20 @@ func authMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-
+	corsConfig := cors.New(cors.Options{
+		AllowedHeaders: []string{"Authorization", "Content-Type"},
+	})
 	fmt.Println("Starting")
 	authRegisterHandler := http.HandlerFunc(auth.Register)
-	http.Handle("/register", cors.Default().Handler(authRegisterHandler))
+	http.Handle("/register", corsConfig.Handler(authRegisterHandler))
 	authLoginHandler := http.HandlerFunc(auth.Login)
-	http.Handle("/login", cors.Default().Handler(authLoginHandler))
+	http.Handle("/login", corsConfig.Handler(authLoginHandler))
 	squeezeSqueezeHandler := http.HandlerFunc(squeeze.Squeeze)
-	http.Handle("/squeeze", cors.Default().Handler(authMiddleware(squeezeSqueezeHandler)))
+	http.Handle("/squeeze", corsConfig.Handler(authMiddleware(squeezeSqueezeHandler)))
 	squeezeRedirectHandler := http.HandlerFunc(squeeze.Redirect)
-	http.Handle("/s/", cors.Default().Handler(squeezeRedirectHandler))
+	http.Handle("/s/", corsConfig.Handler(squeezeRedirectHandler))
 	squeezeStatisticsHandler := http.HandlerFunc(squeeze.Statistics)
-	http.Handle("/statistics", cors.Default().Handler(authMiddleware(squeezeStatisticsHandler)))
+	http.Handle("/statistics", corsConfig.Handler(authMiddleware(squeezeStatisticsHandler)))
 	err := http.ListenAndServe(":9980", nil)
 	if err != nil {
 		fmt.Println(err)
