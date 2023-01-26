@@ -1,0 +1,49 @@
+# Register
+POST http://localhost:9980/register
+Content-Type: application/json
+
+{
+  "name": "Вася4",
+  "password": "dgwgwrgeg"
+}
+
+###
+
+# Login
+POST http://localhost:9980/login
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="username"
+
+Вася4
+--WebAppBoundary
+Content-Disposition: form-data; name="password"
+
+dgwgwrgeg
+--WebAppBoundary--
+
+###
+
+# Squeeze link
+POST http://localhost:9980/squeeze
+Authorization: Bearer 019637ca-684b-4c80-8e58-1e20b2a02dc1
+Content-Type: application/json
+
+{
+  "link": "https://ya.ru/dgt66666"
+}
+
+###
+
+# Go to squeezed link
+GET http://localhost:9980/s/8fec61ea-7
+
+###
+
+# Get statistics
+GET http://localhost:9980/statistics?offset=0&limit=10&sort=asc
+Authorization: Bearer 019637ca-684b-4c80-8e58-1e20b2a02dc1
+
+###
+
