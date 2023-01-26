@@ -9,9 +9,12 @@ import (
 
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Access-Control-Allow-Origin", "http://"+r.Host)
-		w.Header().Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		origin := r.Header.Get("Origin")
+		if "" != origin {
+			w.Header().Add("Access-Control-Allow-Origin", "http://"+r.Host)
+			w.Header().Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		}
 		next.ServeHTTP(w, r)
 	})
 }
