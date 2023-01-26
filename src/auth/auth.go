@@ -9,12 +9,12 @@ import (
 )
 
 type registerForm struct {
-	Name     string
+	Username string
 	Password string
 }
 
 type loginForm struct {
-	Name     string
+	Username string
 	Password string
 }
 
@@ -51,12 +51,12 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_, ok := users[form.Name]
+	_, ok := users[form.Username]
 	if ok {
 		http.Error(w, "User already registered", http.StatusConflict)
 		return
 	}
-	users[form.Name] = passwordHash
+	users[form.Username] = passwordHash
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +67,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var loginForm = loginForm{r.PostFormValue("username"), r.PostFormValue("password")}
-	passwordHash, ok := users[loginForm.Name]
+	passwordHash, ok := users[loginForm.Username]
 	if !ok {
 		http.Error(w, "No such user", http.StatusBadRequest)
 		return
@@ -78,7 +78,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	sessionId := uuid.New()
 
-	sessions[sessionId.String()] = loginForm.Name
+	sessions[sessionId.String()] = loginForm.Username
 	err = json.NewEncoder(w).Encode(loginResponse{sessionId.String()})
 
 	if err != nil {
