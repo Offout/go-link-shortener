@@ -37,10 +37,6 @@ var squeezedStorage = make(map[string]squeezedLink)
 
 func Squeeze(w http.ResponseWriter, r *http.Request) {
 	var userName = auth.CheckSession(r)
-	if "" == userName {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
 	var form squeezeForm
 	err := json.NewDecoder(r.Body).Decode(&form)
 	if err != nil {
@@ -83,10 +79,6 @@ func Redirect(w http.ResponseWriter, r *http.Request) {
 
 func Statistics(w http.ResponseWriter, r *http.Request) {
 	var userName = auth.CheckSession(r)
-	if "" == userName {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
 	var offset, limit = r.URL.Query().Get("offset"), r.URL.Query().Get("limit")
 	var offsetInt int
 	var err error
