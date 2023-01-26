@@ -89,7 +89,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 // CheckSession Returns UserName or empty string
 func CheckSession(r *http.Request) string {
-	var session = r.Header.Get("Authorization")
+	var session = r.Header.Get("authorization")
 	if !strings.HasPrefix(session, "Bearer ") {
 		return ""
 	}
