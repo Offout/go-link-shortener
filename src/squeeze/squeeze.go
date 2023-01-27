@@ -56,7 +56,7 @@ func generateUniqueShort() string {
 	var short = ""
 	for {
 		id := uuid.New()
-		short = id.String()[0:10]
+		short = id.String()[0:5]
 		var _, ok = squeezedStorage[short]
 		if !ok {
 			break

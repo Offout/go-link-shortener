@@ -34,7 +34,7 @@ func main() {
 	http.Handle("/s/", corsConfig.Handler(squeezeRedirectHandler))
 	squeezeStatisticsHandler := http.HandlerFunc(squeeze.Statistics)
 	http.Handle("/statistics", corsConfig.Handler(authMiddleware(squeezeStatisticsHandler)))
-	err := http.ListenAndServe(":9980", nil)
+	err := http.ListenAndServe(":80", nil)
 	if err != nil {
 		fmt.Println(err)
 		return
