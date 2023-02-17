@@ -3,7 +3,7 @@ POST http://localhost:9980/register
 Content-Type: application/json
 
 {
-  "name": "Вася4",
+  "username": "Вася4",
   "password": "dgwgwrgeg"
 }
 
@@ -11,23 +11,16 @@ Content-Type: application/json
 
 # Login
 POST http://localhost:9980/login
-Content-Type: multipart/form-data; boundary=WebAppBoundary
+Content-Type: application/x-www-form-urlencoded
 
---WebAppBoundary
-Content-Disposition: form-data; name="username"
+username=Вася4&password=dgwgwrgeg
 
-Вася4
---WebAppBoundary
-Content-Disposition: form-data; name="password"
-
-dgwgwrgeg
---WebAppBoundary--
-
+###
 ###
 
 # Squeeze link
 POST http://localhost:9980/squeeze
-Authorization: Bearer 019637ca-684b-4c80-8e58-1e20b2a02dc1
+authorization: Bearer d55759c2-3ebe-484a-9cc5-bb6c17342f8d
 Content-Type: application/json
 
 {
@@ -36,8 +29,11 @@ Content-Type: application/json
 
 ###
 
+
+###
+
 # Go to squeezed link
-GET http://localhost:9980/s/8fec61ea-7
+GET http://localhost:9980/s/8fec6
 
 ###
 
