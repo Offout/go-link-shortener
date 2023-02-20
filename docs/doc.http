@@ -38,7 +38,7 @@ GET http://localhost:9980/s/8fec6
 ###
 
 # Get statistics
-GET http://localhost:9980/statistics?offset=0&limit=10&sort=asc
+GET http://localhost:9980/statistics?offset=0&limit=10&sort=counter_desc&sort=short_asc
 Authorization: Bearer 019637ca-684b-4c80-8e58-1e20b2a02dc1
 
 ###

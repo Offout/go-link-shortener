@@ -2,11 +2,13 @@ package squeeze
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/Offout/go-link-shortener/src/auth"
 	"github.com/google/uuid"
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 type squeezeForm struct {
@@ -29,8 +31,16 @@ type squeezeResponse struct {
 	Short string `json:"short"`
 }
 
+type sorting struct {
+	column string
+	order  string
+}
+
 const defaultLimit = 10
-const defaultSort = "asc"
+
+func getDefaultSort() []sorting {
+	return []sorting{{"counter", "desc"}}
+}
 
 // short => SqueezedLink
 var squeezedStorage = make(map[string]squeezedLink)
@@ -104,10 +114,7 @@ func Statistics(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var sorting = r.URL.Query().Get("sort")
-	if "" == sorting {
-		sorting = defaultSort
-	}
+	var sortingQuery = r.URL.Query()["sort"]
 
 	var squeezed []squeezedLinkResponse
 
@@ -116,19 +123,33 @@ func Statistics(w http.ResponseWriter, r *http.Request) {
 			squeezed = append(squeezed, squeezedLinkResponse{short, element.target, element.counter})
 		}
 	}
-	sort.SliceStable(squeezed, func(i, j int) bool {
-		return squeezed[i].Short > squeezed[j].Short
-	})
 
-	if "asc" == sorting {
-		sort.SliceStable(squeezed, func(i, j int) bool {
-			return squeezed[i].Counter < squeezed[j].Counter
-		})
-	} else if "desc" == sorting {
-		sort.SliceStable(squeezed, func(i, j int) bool {
-			return squeezed[i].Counter > squeezed[j].Counter
-		})
+	var sortingParsed []sorting
+	if 0 == len(sortingQuery) {
+		sortingParsed = getDefaultSort()
+	} else {
+		for _, element := range sortingQuery {
+			parts := strings.Split(element, "_")
+			sortingParsed = append(sortingParsed, sorting{parts[0], parts[1]})
+		}
 	}
+	fmt.Println("Original")
+	fmt.Println(squeezed)
+	fmt.Println(sortingParsed)
+
+	sort.SliceStable(squeezed, func(i, j int) bool {
+		switch sortingParsed[0].column {
+		case "short":
+			return sortByShortSmall(squeezed, i, j, sortingParsed[0].order, sortingParsed[1:])
+		case "target":
+			return sortByTargetSmall(squeezed, i, j, sortingParsed[0].order, sortingParsed[1:])
+		case "counter":
+			return sortByCounterSmall(squeezed, i, j, sortingParsed[0].order, sortingParsed[1:])
+		}
+		return true
+	})
+	fmt.Println(squeezed)
+
 	if offsetInt > len(squeezed) {
 		offsetInt = len(squeezed)
 	}
@@ -139,9 +160,61 @@ func Statistics(w http.ResponseWriter, r *http.Request) {
 
 	squeezed = squeezed[offsetInt : limitInt+offsetInt]
 
+	if 0 == len(squeezed) {
+		squeezed = []squeezedLinkResponse{}
+	}
+
 	err = json.NewEncoder(w).Encode(squeezed)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+}
+
+func sortByShortSmall(arr []squeezedLinkResponse, i int, j int, order string, sortParams []sorting) bool {
+	if arr[i].Short == arr[j].Short && 0 != len(sortParams) {
+		switch sortParams[0].column {
+		case "counter":
+			return sortByCounterSmall(arr, i, j, sortParams[0].order, sortParams[1:])
+		case "target":
+			return sortByTargetSmall(arr, i, j, sortParams[0].order, sortParams[1:])
+		}
+	}
+	if "asc" == order {
+		return arr[i].Short < arr[j].Short
+	} else {
+		return arr[i].Short > arr[j].Short
+	}
+}
+
+func sortByTargetSmall(arr []squeezedLinkResponse, i int, j int, order string, sortParams []sorting) bool {
+	if arr[i].Target == arr[j].Target && 0 != len(sortParams) {
+		switch sortParams[0].column {
+		case "counter":
+			return sortByCounterSmall(arr, i, j, sortParams[0].order, sortParams[1:])
+		case "short":
+			return sortByShortSmall(arr, i, j, sortParams[0].order, sortParams[1:])
+		}
+	}
+	if "asc" == order {
+		return arr[i].Target < arr[j].Target
+	} else {
+		return arr[i].Target > arr[j].Target
+	}
+}
+
+func sortByCounterSmall(arr []squeezedLinkResponse, i int, j int, order string, sortParams []sorting) bool {
+	if arr[i].Counter == arr[j].Counter && 0 != len(sortParams) {
+		switch sortParams[0].column {
+		case "target":
+			return sortByTargetSmall(arr, i, j, sortParams[0].order, sortParams[1:])
+		case "short":
+			return sortByShortSmall(arr, i, j, sortParams[0].order, sortParams[1:])
+		}
+	}
+	if "asc" == order {
+		return arr[i].Counter < arr[j].Counter
+	} else {
+		return arr[i].Counter > arr[j].Counter
 	}
 }
