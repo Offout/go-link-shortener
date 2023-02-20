@@ -25,7 +25,7 @@ func main() {
 	corsConfig := cors.New(cors.Options{
 		AllowedHeaders: []string{"Authorization", "Content-Type"},
 	})
-	fmt.Println("Starting")
+	fmt.Println("Starting at port " + port)
 	authRegisterHandler := http.HandlerFunc(auth.Register)
 	http.Handle("/register", corsConfig.Handler(authRegisterHandler))
 	authLoginHandler := http.HandlerFunc(auth.Login)
@@ -37,7 +37,7 @@ func main() {
 	squeezeStatisticsHandler := http.HandlerFunc(squeeze.Statistics)
 	http.Handle("/statistics", corsConfig.Handler(authMiddleware(squeezeStatisticsHandler)))
 	err := http.ListenAndServe(":"+port, nil)
-	fmt.Println("Started at port ", port)
+	fmt.Println("Bye bye ")
 	if err != nil {
 		fmt.Println(err)
 		return
