@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+const port = "9980"
+
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var userName = auth.CheckSession(r)
@@ -34,7 +36,8 @@ func main() {
 	http.Handle("/s/", corsConfig.Handler(squeezeRedirectHandler))
 	squeezeStatisticsHandler := http.HandlerFunc(squeeze.Statistics)
 	http.Handle("/statistics", corsConfig.Handler(authMiddleware(squeezeStatisticsHandler)))
-	err := http.ListenAndServe(":9980", nil)
+	err := http.ListenAndServe(":"+port, nil)
+	fmt.Println("Started at port ", port)
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -2,7 +2,6 @@ package squeeze
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Offout/go-link-shortener/src/auth"
 	"github.com/google/uuid"
 	"net/http"
@@ -133,9 +132,6 @@ func Statistics(w http.ResponseWriter, r *http.Request) {
 			sortingParsed = append(sortingParsed, sorting{parts[0], parts[1]})
 		}
 	}
-	fmt.Println("Original")
-	fmt.Println(squeezed)
-	fmt.Println(sortingParsed)
 
 	sort.SliceStable(squeezed, func(i, j int) bool {
 		switch sortingParsed[0].column {
@@ -148,7 +144,6 @@ func Statistics(w http.ResponseWriter, r *http.Request) {
 		}
 		return true
 	})
-	fmt.Println(squeezed)
 
 	if offsetInt > len(squeezed) {
 		offsetInt = len(squeezed)
